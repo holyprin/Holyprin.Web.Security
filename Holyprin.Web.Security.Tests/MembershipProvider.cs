@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Web.Security;
 using System.Collections.Specialized;
+using Holyprin.Web.Security;
+using System.Data.Entity;
 
 namespace Holyprin.Web.Security.Tests
 {
@@ -16,6 +18,12 @@ namespace Holyprin.Web.Security.Tests
 
 		public CoreTests()
 		{
+			Database.SetInitializer<BaseContext>(new BaseDbInitializer());
+			using (var ctx = new BaseContext())
+			{
+				ctx.Database.Initialize(true);
+			}
+
 			this.mprovider = new Holyprin.Web.Security.CFMembershipProvider();
 
 			NameValueCollection config = new NameValueCollection();
@@ -26,9 +34,8 @@ namespace Holyprin.Web.Security.Tests
 			config.Add("connectionStringName", "ApplicationServices");
 
 			mprovider.Initialize(config["name"], config);
-
-
 		}
+
 		[TestMethod]
 		public void CanCreateNewUser()
 		{

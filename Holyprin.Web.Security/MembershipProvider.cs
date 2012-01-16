@@ -10,7 +10,7 @@ namespace Holyprin.Web.Security
 {
 	public class CFMembershipProvider : MembershipProvider
 	{
-		private Type membership_key_type;
+		private Type membership_key_type, user_type, role_type, context_type;
 		public static DbContext DataContext;
 		public DbSet Users, Roles;
 
@@ -43,17 +43,26 @@ namespace Holyprin.Web.Security
 			this.emailRegularExpression = config.GetConfigValue("emailRegularExpression", DEFAULT_EMAIL_REGEX);
 			this.requiresQuestionAndAnswer = config.GetConfigValue("requiresQuestionAndAnswer", false);
 			this.enablePasswordReset = config.GetConfigValue("enablePasswordReset", true);
-			this.userTableName = CFMembershipSettings.Settings.userTableName;
-			this.roleTableName = CFMembershipSettings.Settings.roleTableName;
+			this.userTableName = CFMembershipSettings.Settings.userTableName ?? "Users";
+			this.roleTableName = CFMembershipSettings.Settings.roleTableName ?? "Roles";
 
-			if (DataContext == null)
-				DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.Settings.dbContext);
+			context_type = Type.GetType(CFMembershipSettings.Settings.dbContext);
+			if (context_type != null)
+				DataContext = (DbContext)Activator.CreateInstance(context_type);
+			else
+				throw new ArgumentNullException("dbContext", "Object not found, check your configuration");
 
-			if (Users == null)
-				Users = DataContext.Set(CFMembershipSettings.Settings.userObject);
+			user_type = Type.GetType(CFMembershipSettings.Settings.userObject);
+			if (user_type != null && DataContext != null)
+				Users = DataContext.Set(user_type);
+			else
+				throw new ArgumentNullException("userObject", "Object not found, check your configuration");
 
-			if (Roles == null)
-				Roles = DataContext.Set(CFMembershipSettings.Settings.roleObject);
+			role_type = Type.GetType(CFMembershipSettings.Settings.roleObject);
+			if (role_type != null && DataContext != null)
+				Roles = DataContext.Set(role_type);
+			else
+				throw new ArgumentNullException("roleObject", "Object not found, check your configuration");
 
 			membership_key_type = (CFMembershipSettings.Settings.keyType.StartsWith("System")) ? Type.GetType(CFMembershipSettings.Settings.keyType) : Type.GetType("System." + CFMembershipSettings.Settings.keyType);
 
@@ -164,7 +173,7 @@ namespace Holyprin.Web.Security
 
 				HashPassword(password, out passwordSalt, out passwordHash);
 
-				dynamic usr = Activator.CreateInstance(CFMembershipSettings.Settings.userObject);
+				dynamic usr = Activator.CreateInstance(Type.GetType(CFMembershipSettings.Settings.userObject));
 
 				if (providerUserKey != null && Guid.TryParse(providerUserKey.ToString(), out guid))
 				{

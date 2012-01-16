@@ -50,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CFMembershipSettings.cs" />
-    <Compile Include="DbInitializer.cs" />
     <Compile Include="Entities.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="MembershipProvider.cs" />

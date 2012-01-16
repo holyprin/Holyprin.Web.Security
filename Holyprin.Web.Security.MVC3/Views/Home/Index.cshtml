@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Holyprin.Web.Security.Role>
+﻿@model IEnumerable<Holyprin.Web.Security.MVC3.Entities.Role>
 @{
     ViewBag.Title = "Home Page";
 }
@@ -8,7 +8,8 @@
     To learn more about ASP.NET MVC visit <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
 </p>
 <ul>
-@foreach (Holyprin.Web.Security.Role r in Model) {
+@foreach (Holyprin.Web.Security.MVC3.Entities.Role r in Model)
+{
 		<li>@r.Name - @r.RoleId</li>
 }
 </ul>

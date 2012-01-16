@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Data.Entity;
-using Holyprin.Web.Security.Web.MembershipCode;
+using Holyprin.Web.Security.MVC3.MembershipCode;
 
 namespace Holyprin.Web.Security.MVC3
 {
@@ -33,8 +33,8 @@ namespace Holyprin.Web.Security.MVC3
 
         protected void Application_Start()
         {
-			Database.SetInitializer<BaseContext>(new DbInitializer());
-			using (var ctx = new BaseContext())
+			Database.SetInitializer<MyBaseContext>(new DbInitializer());
+			using (var ctx = new MyBaseContext())
 			{
 				ctx.Database.Initialize(true);
 			}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Holyprin.Web.Security.MVC3.MembershipCode;
 
 namespace Holyprin.Web.Security.MVC3.Controllers
 {
@@ -10,7 +11,7 @@ namespace Holyprin.Web.Security.MVC3.Controllers
     {
         public ActionResult Index()
         {
-			var con = new BaseContext();
+			var con = new MyBaseContext();
 
             ViewBag.Message = "Welcome to ASP.NET MVC!";
 

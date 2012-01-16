@@ -9,7 +9,7 @@ namespace Holyprin.Web.Security
 {
 	#region Entities...
 
-	public class User : IUser<Role, Guid>
+	public class BaseUser : IUser<BaseRole, Guid>
 	{
 		[Key]
 		public Guid UserId { get; set; }
@@ -45,17 +45,17 @@ namespace Holyprin.Web.Security
 		[Display(Name = "Last Password Change Date")]
 		public DateTime DateLastPasswordChange { get; set; }
 
-		public virtual ICollection<Role> Roles { get; set; }
+		public virtual ICollection<BaseRole> Roles { get; set; }
 	}
 
-	public class Role : IRole<User, Guid>
+	public class BaseRole : IRole<BaseUser, Guid>
 	{
 		[Key]
 		public Guid RoleId { get; set; }
 
 		public string Name { get; set; }
 
-		public virtual ICollection<User> Users { get; set; }
+		public virtual ICollection<BaseUser> Users { get; set; }
 	}
 
 	#endregion
@@ -96,17 +96,27 @@ namespace Holyprin.Web.Security
 	
 	public class BaseContext : DbContext
 	{
-		public DbSet<User> Users { get; set; }
-		public DbSet<Role> Roles { get; set; }
+		public DbSet<BaseUser> Users { get; set; }
+		public DbSet<BaseRole> Roles { get; set; }
 
 		public BaseContext() : base("ApplicationServices") { }
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<User>()
-				.HasMany<Role>(u => u.Roles)
+			modelBuilder.Entity<BaseUser>()
+				.HasMany<BaseRole>(u => u.Roles)
 				.WithMany(r => r.Users)
 				.Map(m => m.ToTable("RoleMemberships"));
+		}
+	}
+
+	public class BaseDbInitializer : DropCreateDatabaseAlways<BaseContext>
+	{
+		protected override void Seed(BaseContext context)
+		{
+			context.Roles.Add(new BaseRole { Name = "Test" });
+			context.SaveChanges();
+			base.Seed(context);
 		}
 	}
 
