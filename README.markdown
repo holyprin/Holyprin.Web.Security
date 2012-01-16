@@ -47,5 +47,3 @@ to use IRole interface properly you would point User at YOUR User entity and Gui
 Please note that I, like Altairis disagree with a few built in membership functions (GetPassword, Account lockdown, Clear/Encrypted Passwords) so I don't implement them. I will however make an exception for Account lockdown when I get around to building a netmask/IP Ban system for it.
 
 If you like the project and want to support its development, help a girl out and [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=D64Y8TBGEAWBA) Anything is greatly appreciated and keeps me interesting in the project.
-
-ugh.
