@@ -42,10 +42,9 @@ The dbContext, userObject, and roleObject should all point to your main assembly
 		public string Name { get; set; }
 		public virtual ICollection<User> Users { get; set; }
 	}
+
 to use IRole interface properly you would point User at YOUR User entity and Guid is what the Interface sets the key to be, this can be Int32/Int64/Int16/Guid. Make sure to change your implementation to correspond with the generic key type.
 
 Please note that I, like Altairis disagree with a few built in membership functions (GetPassword, Account lockdown, Clear/Encrypted Passwords) so I don't implement them. I will however make an exception for Account lockdown when I get around to building a netmask/IP Ban system for it.
 
-If you like the project and want to support its development, help a girl out and [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=D64Y8TBGEAWBA) Anything is greatly appreciated and keeps me interesting in the project.
-
-ugh.
+If you like the project and want to support its development, help a girl out and [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=D64Y8TBGEAWBA). Anything is greatly appreciated and keeps me interesting in the project.
