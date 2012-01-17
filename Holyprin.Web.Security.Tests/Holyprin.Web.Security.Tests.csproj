@@ -37,6 +37,9 @@
       <HintPath>..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -61,6 +64,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Holyprin.Web.Security.MVC3\Holyprin.Web.Security.MVC3.csproj">
+      <Project>{FF751A7A-33D2-423C-A413-26049E891A65}</Project>
+      <Name>Holyprin.Web.Security.MVC3</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Holyprin.Web.Security\Holyprin.Web.Security.csproj">
       <Project>{C60716BB-F7C1-409A-9F5C-4F9598E6536B}</Project>
       <Name>Holyprin.Web.Security</Name>

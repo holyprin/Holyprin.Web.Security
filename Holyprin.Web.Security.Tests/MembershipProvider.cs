@@ -7,6 +7,7 @@ using System.Web.Security;
 using System.Collections.Specialized;
 using Holyprin.Web.Security;
 using System.Data.Entity;
+using System.Configuration;
 
 namespace Holyprin.Web.Security.Tests
 {
@@ -18,20 +19,12 @@ namespace Holyprin.Web.Security.Tests
 
 		public CoreTests()
 		{
-			Database.SetInitializer<BaseContext>(new BaseDbInitializer());
-			using (var ctx = new BaseContext())
-			{
-				ctx.Database.Initialize(true);
-			}
-
 			this.mprovider = new Holyprin.Web.Security.CFMembershipProvider();
 
 			NameValueCollection config = new NameValueCollection();
 			
 			config.Add("applicationName", "/");
 			config.Add("name", "CFMembershipProvider");
-			config.Add("requiresQuestionAndAnswer", "false");
-			config.Add("connectionStringName", "ApplicationServices");
 
 			mprovider.Initialize(config["name"], config);
 		}
