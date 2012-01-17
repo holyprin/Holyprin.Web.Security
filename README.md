@@ -18,7 +18,7 @@ I included feature requests like multiple key type support, and centralized conf
 ```xml
 <configuration>
 	<configSections>
-		<section name="CFMembershipSettings" type="Holyprin.Web.Security.CFMembershipSettings, Holyprin.Web.Security" />
+		<section name="CFMembershipSettings" type="Holyprin.Web.Security.Configuration.CFMembershipSettings, Holyprin.Web.Security" />
 	</configSections>
 	
 	<connectionStrings>
@@ -26,10 +26,10 @@ I included feature requests like multiple key type support, and centralized conf
 	</connectionStrings>
 
 	<CFMembershipSettings
-		dbContext="Holyprin.Web.Security.BaseContext, Holyprin.Web.Security"
-		userObject="Holyprin.Web.Security.User, Holyprin.Web.Security"
-		roleObject="Holyprin.Web.Security.Role, Holyprin.Web.Security"
-		keyType="System.Guid" />
+		dbContext="Holyprin.Web.Security.MVC3.MembershipCode.MyBaseContext, Holyprin.Web.Security.MVC3"
+		userObject="Holyprin.Web.Security.MVC3.Entities.User, Holyprin.Web.Security.MVC3"
+		roleObject="Holyprin.Web.Security.MVC3.Entities.Role, Holyprin.Web.Security.MVC3"
+		keyType="System.Guid" userTable="Users" roleTable="Roles" />
 
 	<system.web>
 		<membership defaultProvider="CFMembershipProvider">
@@ -49,7 +49,7 @@ The dbContext, userObject, and roleObject should all point to your main assembly
 
 ##Model Configuration
 ```c#
-public class Role : IRole<User, Guid>
+public class Role : IProviderRole<User, Guid>
 {
 	[Key]
 	public Guid RoleId { get; set; }
