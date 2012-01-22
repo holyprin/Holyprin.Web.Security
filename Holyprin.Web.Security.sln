@@ -5,14 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security", "Ho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security.MVC3", "Holyprin.Web.Security.MVC3\Holyprin.Web.Security.MVC3.csproj", "{FF751A7A-33D2-423C-A413-26049E891A65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security.Tests", "Holyprin.Web.Security.Tests\Holyprin.Web.Security.Tests.csproj", "{B048A9F1-B369-4921-8D43-BE6FD0EFF7E5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{43B1BFA4-9D17-4DBC-BFEB-9EEFC820D946}"
 	ProjectSection(SolutionItems) = preProject
 		Holyprin.Web.Security.vsmdi = Holyprin.Web.Security.vsmdi
-		Local.testsettings = Local.testsettings
 		README.md = README.md
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
 Global
@@ -32,10 +28,6 @@ Global
 		{FF751A7A-33D2-423C-A413-26049E891A65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF751A7A-33D2-423C-A413-26049E891A65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF751A7A-33D2-423C-A413-26049E891A65}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B048A9F1-B369-4921-8D43-BE6FD0EFF7E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B048A9F1-B369-4921-8D43-BE6FD0EFF7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B048A9F1-B369-4921-8D43-BE6FD0EFF7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B048A9F1-B369-4921-8D43-BE6FD0EFF7E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

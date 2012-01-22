@@ -17,6 +17,15 @@ namespace Holyprin.Web.Security.MVC3.Controllers
             ViewBag.Message = "Welcome to ASP.NET MVC!";
 			ViewBag.UsersOnline = Membership.GetNumberOfUsersOnline();
 
+			ViewBag.userNameByEmail = Membership.GetUserNameByEmail("demo@gmail.com");
+			ViewBag.usersWithEmail = Membership.FindUsersByEmail("demo@gmail.com");
+			ViewBag.usersWithUsername = Membership.FindUsersByName("Demo");
+			ViewBag.allUsers = Membership.GetAllUsers();
+			ViewBag.userByUsername = Membership.GetUser("Demo");
+			ViewBag.userByKey = Membership.GetUser(ViewBag.userByUsername.ProviderUserKey);
+			ViewBag.validated = Membership.ValidateUser("Demo", "demo1234");
+			ViewBag.usersInAdministrator = Roles.GetUsersInRole("Administrator");
+
             return View(con.Roles.ToList());
         }
 

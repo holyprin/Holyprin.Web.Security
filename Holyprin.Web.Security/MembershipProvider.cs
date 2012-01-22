@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Web.Security;
 using System.Data.Entity;
 using System.Text.RegularExpressions;
 
 using Holyprin.Web.Security.Configuration;
-using System.Web.Hosting;
-using System.ComponentModel.DataAnnotations;
 
 namespace Holyprin.Web.Security
 {
@@ -101,7 +98,7 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			status = MembershipCreateStatus.Success;
 
@@ -214,7 +211,7 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			if (string.IsNullOrWhiteSpace(username))
 				throw new ArgumentNullException("username");
@@ -244,7 +241,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			dynamic usr = Users.Find(user.ProviderUserKey);
 
@@ -281,7 +278,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			dynamic user = null;
 
@@ -324,7 +321,7 @@ namespace Holyprin.Web.Security
 			
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			string newPassword = null;
 
@@ -364,7 +361,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			bool result = false;
 
@@ -411,7 +408,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			bool result = false;
 
@@ -470,7 +467,7 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			DateTime cutoff = DateTime.Now.AddMinutes(-Membership.UserIsOnlineTimeWindow);
 
@@ -487,7 +484,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
 
@@ -523,7 +520,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			if (providerUserKey != null)
 			{
@@ -565,7 +562,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = '{0}'", email)).Cast<dynamic>().FirstOrDefault();
 
@@ -606,7 +603,7 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			pageIndex = (pageIndex == 1) ? 0 : pageIndex;
 

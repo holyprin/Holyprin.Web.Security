@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using Holyprin.Web.Security.MVC3.Entities;
 using Holyprin.Web.Security.MVC3.MembershipCode;
+using System.Web.Security;
 
 namespace Holyprin.Web.Security.MVC3.Controllers
 { 
@@ -104,6 +105,51 @@ namespace Holyprin.Web.Security.MVC3.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+		//
+		// GET: /User/AddRole/Id
+		[Authorize(Roles = "Administrator")]
+		public ActionResult AddRole(Guid id)
+		{
+			User user = db.Users.FirstOrDefault(u => u.UserId == id);
+			IEnumerable<Role> _roles = db.Roles.ToList();
+			var test = Roles.GetRolesForUser();
+			var temp = Roles.GetUsersInRole("Administrator");
+			ViewBag.PossibleRoles = _roles;
+			return View(user);
+		}
+
+		//
+		// Post: /User/AddRole/Id
+		[HttpPost, ActionName("AddRole")]
+		[Authorize(Roles = "Administrator")]
+		public ActionResult AddRole(Guid id, Guid roleId)
+		{
+			User user = db.Users.FirstOrDefault(u => u.UserId == id);
+			Role role = db.Roles.FirstOrDefault(r => r.RoleId == roleId);
+
+			user.Roles.Add(role);
+
+			db.SaveChanges();
+
+			ViewBag.PossibleRoles = db.Roles.ToList();
+
+			return View(user);
+		}
+
+		[HttpGet, ActionName("RemoveRole")]
+		[Authorize(Roles = "Administrator")]
+		public RedirectToRouteResult RemoveRole(Guid id, Guid roleId)
+		{
+			User user = db.Users.FirstOrDefault(u => u.UserId == id);
+			Role role = db.Roles.FirstOrDefault(r => r.RoleId == roleId);
+
+			user.Roles.Remove(role);
+
+			db.SaveChanges();
+
+			return RedirectToAction("AddRole", new { id = user.UserId });
+		}
 
         protected override void Dispose(bool disposing)
         {
