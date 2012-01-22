@@ -6,6 +6,7 @@ using System.Web.Security;
 
 namespace Holyprin.Web.Security.Interfaces
 {
+	//This interface is unused at the moment, I'll end up implementing it when I build the layer abstraction for unit testing.
 	public interface IUserService
 	{
 		MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status);
