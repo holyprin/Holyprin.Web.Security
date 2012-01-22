@@ -17,41 +17,64 @@ I included feature requests like multiple key type support, and centralized conf
 ##Provider Configuration
 ```xml
 <configuration>
+	<!-- Section configuration, provider will not work without this at the top of the configuration section. -->
 	<configSections>
 		<section name="CFMembershipSettings" type="Holyprin.Web.Security.Configuration.CFMembershipSettings, Holyprin.Web.Security" />
 	</configSections>
-	
-	<connectionStrings>
-		<add name="ApplicationServices" connectionString="Data Source=Holyprin.Web.Security.sdf;Persist Security Info=False;" providerName="System.Data.SqlServerCe.4.0" />
-	</connectionStrings>
 
+	<!-- Configuration settings for the provider, ALL settings are required. -->
 	<CFMembershipSettings
 		dbContext="Holyprin.Web.Security.MVC3.MembershipCode.MyBaseContext, Holyprin.Web.Security.MVC3"
 		userObject="Holyprin.Web.Security.MVC3.Entities.User, Holyprin.Web.Security.MVC3"
 		roleObject="Holyprin.Web.Security.MVC3.Entities.Role, Holyprin.Web.Security.MVC3"
-		keyType="System.Guid" userTable="Users" roleTable="Roles" />
+		keyType="Guid" userTable="Users" roleTable="Roles" allowLoginWithEmail="true" useEmailAsUsername="false" />
+	
+	<connectionStrings>
+		<!-- 2 Connection strings for Express / Standard, and Compact Edition -->
+		<add name="Holyprin.Web.Security.Compact" connectionString="Data Source=|DataDirectory|Holyprin.Web.Security.sdf;Persist Security Info=False;" providerName="System.Data.SqlServerCe.4.0" />
+		<add name="Holyprin.Web.Security.Express" connectionString="Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|Holyprin.Web.Security.mdf;database=Holyprin.Web.Security;Integrated Security=True;User Instance=True" providerName="System.Data.SqlClient" />
+	</connectionStrings>
 
 	<system.web>
+		<!-- Standard membership configuration here -->
 		<membership defaultProvider="CFMembershipProvider">
 			<providers>
-				<clear />
+				<clear/>
 				<add applicationName="/" requiresQuestionAndAnswer="false"
 				  requiresUniqueEmail="true" minRequiredNonalphanumericCharacters="0"
-				  enablePasswordReset="true" connectionStringName="ApplicationServices"
+				  enablePasswordReset="true" connectionStringName="Holyprin.Web.Security.Express"
 				  name="CFMembershipProvider" type="Holyprin.Web.Security.CFMembershipProvider, Holyprin.Web.Security" />
 			</providers>
 		</membership>
+
+		<roleManager enabled="true" defaultProvider="CFRoleProvider">
+			<providers>
+				<clear/>
+				<add name="AspNetWindowsTokenRoleProvider" type="System.Web.Security.WindowsTokenRoleProvider" applicationName="/" />
+				<add name="CFRoleProvider" type="Holyprin.Web.Security.CFRoleProvider" connectionStringName="Holyprin.Web.Security.Express" applicationName="/" />
+			</providers>
+		</roleManager>
+
 	</system.web>
 </configuration>
 ```
 
-The dbContext, userObject, and roleObject should all point to your main assembly containing your base models/context.
+Properties:
++ dbContext - "Namespace.To.Your.Data.Context, Assembly.Name.Without.Extension"
++ userObject - "Namespace.To.Your.User.Object, Assembly.Name.Without.Extension"
++ roleObject - "Namespace.To.Your.Role.Object, Assembly.Name.Without.Extension"
++ userTable - User table name in the database, this should match your object name, or your mapping in the DataContext.
++ roleTable - Role table name in the database, this should match your object name, or your mapping in the DataContext.
++ useEmailAsUsername - Configures the provider to replace the Username in the database with their email address !DO NOT CHANGE THIS SETTING ON EXISTING DATABASES!
++ allowLoginWithEmail - Configures the provider to always search for the users email or username to login.
+
 
 ##Model Configuration
 ```c#
 public class Role : IProviderRole<User, Guid>
 {
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Used for Microsoft SQL Server / SQL Server Express DO NOT USE WITH SQL Server Compact Edition
 	public Guid RoleId { get; set; }
 	public string Name { get; set; }
 	public virtual ICollection<User> Users { get; set; }

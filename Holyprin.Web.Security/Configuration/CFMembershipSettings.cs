@@ -68,6 +68,16 @@ namespace Holyprin.Web.Security.Configuration
 			}
 		}
 
+		public static bool AllowLoginWithEmail
+		{
+			get { return Boolean.Parse(settings.allowLoginWithEmail); }
+		}
+
+		public static bool UseEmailAsUsername
+		{
+			get { return Boolean.Parse(settings.useEmailAsUsername); }
+		}
+
 		private static CFMembershipSettings settings = ConfigurationManager.GetSection("CFMembershipSettings") as CFMembershipSettings;
 
 		[ConfigurationProperty("dbContext", DefaultValue = "Holyprin.Web.Security.ProviderContext, Holyprin.Web.Security", IsRequired = true)]
@@ -110,6 +120,20 @@ namespace Holyprin.Web.Security.Configuration
 		{
 			get { return this["roleTable"].ToString(); }
 			set { this["roleTable"] = value; }
+		}
+
+		[ConfigurationProperty("allowLoginWithEmail", DefaultValue = "true", IsRequired = true)]
+		public string allowLoginWithEmail
+		{
+			get { return this["allowLoginWithEmail"].ToString(); }
+			set { this["allowLoginWithEmail"] = value; }
+		}
+
+		[ConfigurationProperty("useEmailAsUsername", DefaultValue = "false", IsRequired = true)]
+		public string useEmailAsUsername
+		{
+			get { return this["useEmailAsUsername"].ToString(); }
+			set { this["useEmailAsUsername"] = value; }
 		}
 	}
 }

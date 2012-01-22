@@ -33,8 +33,6 @@ namespace Holyprin.Web.Security
 			this.minRequiredPasswordLength = config.GetConfigValue("minRequiredPasswordLength", 8);
 			this.passwordStrengthRegularExpression = config.GetConfigValue("passwordStrengthRegularExpression", null);
 			this.requiresUniqueEmail = config.GetConfigValue("requiresUniqueEmail", true);
-			this.allowLoginWithEmail = config.GetConfigValue("allowLoginWithEmail", true);
-			this.useEmailAsUsername = config.GetConfigValue("useEmailAsUsername", false);
 			this.generatedNonAlpha = config.GetConfigValue("generatedNonAlpha", 6);
 			this.generatedPassLength = config.GetConfigValue("generatedPassLength", 12);
 			this.emailRegularExpression = config.GetConfigValue("emailRegularExpression", DEFAULT_EMAIL_REGEX);
@@ -42,6 +40,8 @@ namespace Holyprin.Web.Security
 			this.enablePasswordReset = config.GetConfigValue("enablePasswordReset", true);
 			this.userTableName = CFMembershipSettings.UserTable ?? "Users";
 			this.roleTableName = CFMembershipSettings.RoleTable ?? "Roles";
+			this.allowLoginWithEmail = CFMembershipSettings.AllowLoginWithEmail;
+			this.useEmailAsUsername = CFMembershipSettings.UseEmailAsUsername;
 
 			base.Initialize(name, config);
 		}
