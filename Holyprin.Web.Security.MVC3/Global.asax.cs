@@ -38,7 +38,6 @@ namespace Holyprin.Web.Security.MVC3
 			{
 				ctx.Database.Initialize(true);
 			}
-
             AreaRegistration.RegisterAllAreas();
 
             RegisterGlobalFilters(GlobalFilters.Filters);

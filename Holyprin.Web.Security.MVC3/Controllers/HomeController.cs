@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Holyprin.Web.Security.MVC3.MembershipCode;
+using System.Web.Security;
 
 namespace Holyprin.Web.Security.MVC3.Controllers
 {
@@ -14,6 +15,7 @@ namespace Holyprin.Web.Security.MVC3.Controllers
 			var con = new MyBaseContext();
 
             ViewBag.Message = "Welcome to ASP.NET MVC!";
+			ViewBag.UsersOnline = Membership.GetNumberOfUsersOnline();
 
             return View(con.Roles.ToList());
         }

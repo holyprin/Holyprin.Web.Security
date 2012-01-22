@@ -1,0 +1,60 @@
+﻿@model Holyprin.Web.Security.MVC3.Entities.User
+
+@using Holyprin.Web.Security.MVC3.Entities
+
+@{
+    ViewBag.Title = "AddRole";
+}
+
+<h2>AddRole</h2>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>User</legend>
+
+        @Html.HiddenFor(model => model.Username)
+
+        <div class="editor-label">
+            User Name:
+        </div>
+        <div class="editor-field">
+            @Model.Username
+        </div>
+
+        <div class="editor-label">
+            Roles:
+        </div>
+        <div class="editor-field">
+			<ul>
+            @foreach (var item in Model.Roles) {
+                <li>@item.Name - @Html.ActionLink("Remove","RemoveRole", new { id = Model.UserId, roleId = item.RoleId,})</li>
+			}
+			</ul>
+        </div>
+
+        <div class="editor-label">
+            Select Role:
+        </div>
+        <div class="editor-field">
+			@{ var blah = @ViewBag.PossibleRoles; }
+            @Html.DropDownList("RoleId", ((IEnumerable<Role>)ViewBag.PossibleRoles).Select(option =>
+				new SelectListItem
+				{
+					Text = (option == null ? "None" : option.Name), Value = option.RoleId.ToString()
+				}), "Choose..."
+			)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>

@@ -7,14 +7,13 @@ using System.Data.Entity;
 using System.Text.RegularExpressions;
 
 using Holyprin.Web.Security.Configuration;
+using System.Web.Hosting;
+using System.ComponentModel.DataAnnotations;
 
 namespace Holyprin.Web.Security
 {
 	public class CFMembershipProvider : MembershipProvider
 	{
-		public static DbContext DataContext;
-		public DbSet Users, Roles;
-
 		private string emailRegularExpression, passwordStrengthRegularExpression, userTableName, roleTableName;
 		private int minRequiredNonAlphanumericCharacters, minRequiredPasswordLength, generatedPassLength, generatedNonAlpha;
 		private bool requiresUniqueEmail, allowLoginWithEmail, useEmailAsUsername, requiresQuestionAndAnswer, enablePasswordReset;
@@ -44,26 +43,10 @@ namespace Holyprin.Web.Security
 			this.emailRegularExpression = config.GetConfigValue("emailRegularExpression", DEFAULT_EMAIL_REGEX);
 			this.requiresQuestionAndAnswer = config.GetConfigValue("requiresQuestionAndAnswer", false);
 			this.enablePasswordReset = config.GetConfigValue("enablePasswordReset", true);
-			this.userTableName = CFMembershipSettings.Settings.UserTable;
-			this.roleTableName = CFMembershipSettings.Settings.RoleTable;
-
-			if (CFMembershipSettings.Settings.DataContext != null)
-				DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.Settings.DataContext);
-			else
-				throw new ArgumentNullException("dbContext", "Invalid dbContext object, check your configuration");
-
-			if (CFMembershipSettings.Settings.UserType != null && DataContext != null)
-				Users = DataContext.Set(CFMembershipSettings.Settings.UserType);
-			else
-				throw new ArgumentNullException("userObject", "Invalid User object, check your configuration");
-
-			if (CFMembershipSettings.Settings.RoleType != null && DataContext != null)
-				Roles = DataContext.Set(CFMembershipSettings.Settings.UserType);
-			else
-				throw new ArgumentNullException("roleObject", "Invalid Role object, check your configuration");
+			this.userTableName = CFMembershipSettings.UserTable ?? "Users";
+			this.roleTableName = CFMembershipSettings.RoleTable ?? "Roles";
 
 			base.Initialize(name, config);
-
 		}
 
 		#region Properties...
@@ -116,6 +99,10 @@ namespace Holyprin.Web.Security
 
 		public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
 		{
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
 			status = MembershipCreateStatus.Success;
 
 			if (string.IsNullOrEmpty(username) || string.IsNullOrWhiteSpace(username))
@@ -169,10 +156,21 @@ namespace Holyprin.Web.Security
 
 				HashPassword(password, out passwordSalt, out passwordHash);
 
-				dynamic usr = Activator.CreateInstance(CFMembershipSettings.Settings.UserType);
+				dynamic usr = Activator.CreateInstance(CFMembershipSettings.UserType);
 
-				if (CFMembershipSettings.Settings.ProviderKeyType == typeof(Guid) && providerUserKey != null && Guid.TryParse(providerUserKey.ToString(), out guid))
+				if (CFMembershipSettings.ProviderKeyType == typeof(Guid) && providerUserKey != null && Guid.TryParse(providerUserKey.ToString(), out guid))
 					usr.UserId = (Guid)providerUserKey;
+
+				//If using SqlServeCE or the UserId is missing the DatabaseGenerated attribute
+				//automatically generate keys via code, otherwise allow the server to generate them.
+				if (CFMembershipSettings.ProviderKeyType == typeof(Guid) && providerUserKey == null)
+				{
+					var info = (CFMembershipSettings.UserType).GetProperty("UserId").GetCustomAttributesData()
+						.SingleOrDefault(item => item.Constructor.ReflectedType.Name == "DatabaseGeneratedAttribute");
+
+					if (info == null)
+						usr.UserId = Guid.NewGuid(); 
+				}
 
 				usr.Username = username;
 				usr.PasswordHash = passwordHash;
@@ -204,6 +202,9 @@ namespace Holyprin.Web.Security
 				{
 					status = MembershipCreateStatus.ProviderError;
 				}
+
+				DataContext.Dispose();
+
 				return this.GetUser(usr.UserId, false);
 			}
 			return null;
@@ -211,32 +212,233 @@ namespace Holyprin.Web.Security
 
 		public override bool DeleteUser(string username, bool deleteAllRelatedData)
 		{
-			throw new NotImplementedException();
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentNullException("username");
+
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+
+			if (user != null)
+			{
+				if (deleteAllRelatedData)
+				{
+					user.Roles.Clear();
+				}
+				Users.Remove(user);
+			}
+
+			bool result = (DataContext.SaveChanges() > 0) ? true : false;
+
+			DataContext.Dispose();
+
+			return result;
 		}
 
 		public override void UpdateUser(MembershipUser user)
 		{
-			throw new NotImplementedException();
+			if (user == null)
+				throw new ArgumentNullException("user");
+
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			dynamic usr = Users.Find(user.ProviderUserKey);
+
+			if (usr != null)
+			{
+				try
+				{
+					usr.Username = user.UserName;
+					usr.IsApproved = user.IsApproved;
+					usr.DateLastActivity = user.LastActivityDate;
+					usr.DateLastLogin = user.LastLoginDate;
+					usr.DateLastPasswordChange = user.LastPasswordChangedDate;
+					usr.PasswordQuestion = user.PasswordQuestion;
+					usr.Email = user.Email;
+					usr.Comment = user.Comment;
+					usr.IsApproved = user.IsApproved;
+
+					DataContext.SaveChanges();
+				}
+				catch (Exception ex)
+				{
+					throw ex;
+				}
+			}
+			DataContext.Dispose();
 		}
 
 		public override bool ValidateUser(string username, string password)
 		{
-			throw new NotImplementedException();
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentNullException("username");
+			if (string.IsNullOrWhiteSpace(password))
+				throw new ArgumentNullException("password");
+
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			dynamic user = null;
+
+			if ((AllowLoginWithEmail || UseEmailAsUsername) && RequiresUniqueEmail)
+			{
+				if (Regex.IsMatch(username, this.EmailRegularExpression))
+				{
+					user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+				}
+				else { user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault(); }
+			}
+			else
+			{
+				user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			}
+
+			bool result = false;
+
+			if (user != null)
+			{
+				if (this.VerifyPassword(password, user.PasswordSalt, user.PasswordHash))
+				{
+					user.DateLastLogin = DateTime.Now;
+					user.DateLastActivity = DateTime.Now;
+					result = true;
+				}
+			}
+
+			DataContext.SaveChanges();
+
+			DataContext.Dispose();
+
+			return result;
 		}
 
 		public override string ResetPassword(string username, string answer)
 		{
-			throw new NotImplementedException();
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentNullException("username");
+			
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			string newPassword = null;
+
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+
+			if (user != null)
+			{
+				if ((this.EnablePasswordReset && !this.RequiresQuestionAndAnswer) || ((answer.ToLower().Trim() == user.PasswordAnswer.ToLower().Trim())) && (this.RequiresQuestionAndAnswer))
+				{
+					newPassword = Membership.GeneratePassword(this.generatedPassLength, this.generatedNonAlpha);
+					dynamic temp = this.SetPassword(user, newPassword);
+
+					user.PasswordHash = temp.PasswordHash;
+					user.PasswordSalt = temp.PasswordSalt;
+				}
+			}
+			if (newPassword == null)
+				throw new Exception("The new password could not be generated. Please verify the input fields are correct.");
+
+			DataContext.SaveChanges();
+
+			DataContext.Dispose();
+
+			return newPassword;
 		}
 
 		public override bool ChangePassword(string username, string oldPassword, string newPassword)
 		{
-			throw new NotImplementedException();
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentNullException("username");
+			if (string.IsNullOrWhiteSpace(oldPassword))
+				throw new ArgumentNullException("oldPassword");
+			if (string.IsNullOrWhiteSpace(newPassword))
+				throw new ArgumentNullException("newPassword");
+			if (!this.CheckPasswordPolicy(newPassword))
+				return false;
+
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			bool result = false;
+
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+
+			if (user != null)
+			{
+				try
+				{
+					bool verifiedOld = this.VerifyPassword(oldPassword, user.PasswordSalt, user.PasswordHash);
+					if (verifiedOld)
+					{
+						dynamic temp = this.SetPassword(user, newPassword);
+
+						user.PasswordHash = temp.PasswordHash;
+						user.PasswordSalt = temp.PasswordSalt;
+
+						result = true;
+					}
+				}
+				catch (Exception)
+				{
+					result = false;
+				}
+			}
+
+			DataContext.SaveChanges();
+
+			DataContext.Dispose();
+
+			return result;
 		}
 
 		public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
 		{
-			throw new NotImplementedException();
+			if (string.IsNullOrWhiteSpace(username))
+				throw new ArgumentNullException("username");
+			if (string.IsNullOrWhiteSpace(password))
+				throw new ArgumentNullException("password");
+			if (string.IsNullOrWhiteSpace(newPasswordQuestion))
+				throw new ArgumentNullException("newPasswordQuestion");
+			if (string.IsNullOrWhiteSpace(newPasswordAnswer))
+				throw new ArgumentNullException("newPasswordAnswer");
+
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			bool result = false;
+
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+
+			if (user != null)
+			{
+				if (this.VerifyPassword(password, user.PasswordSalt, user.PasswordHash))
+				{
+					try
+					{
+						user.PasswordQuestion = newPasswordQuestion;
+						user.PasswordAnswer = newPasswordAnswer;
+						result = true;
+					}
+					catch (Exception)
+					{
+						result = false;
+					}
+				}
+			}
+
+			DataContext.SaveChanges();
+
+			DataContext.Dispose();
+
+			return result;
 		}
 
 		#endregion
@@ -245,22 +447,37 @@ namespace Holyprin.Web.Security
 
 		public override MembershipUserCollection FindUsersByEmail(string emailToMatch, int pageIndex, int pageSize, out int totalRecords)
 		{
-			throw new NotImplementedException();
+			if (string.IsNullOrWhiteSpace(emailToMatch))
+				throw new ArgumentNullException("emailToMatch");
+
+			return this.FindUsers("Email = '{0}'", emailToMatch, pageIndex, pageSize, out totalRecords);
 		}
 
 		public override MembershipUserCollection FindUsersByName(string usernameToMatch, int pageIndex, int pageSize, out int totalRecords)
 		{
-			throw new NotImplementedException();
+			if (string.IsNullOrWhiteSpace(usernameToMatch))
+				throw new ArgumentNullException("usernameToMatch");
+
+			return this.FindUsers("Username = '{0}'", usernameToMatch, pageIndex, pageSize, out totalRecords);
 		}
 
 		public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
 		{
-			throw new NotImplementedException();
+			return this.FindUsers(null, null, pageIndex, pageSize, out totalRecords);
 		}
 
 		public override int GetNumberOfUsersOnline()
 		{
-			throw new NotImplementedException();
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
+			DateTime cutoff = DateTime.Now.AddMinutes(-Membership.UserIsOnlineTimeWindow);
+
+			int count = DataContext.Database.SqlQuery(typeof(int), q("SELECT COUNT(*) FROM $Users WHERE DateLastActivity > '{0}'", cutoff))
+				.Cast<int>().FirstOrDefault();
+
+			return count;
 		}
 
 		public override MembershipUser GetUser(string username, bool userIsOnline)
@@ -268,25 +485,32 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrEmpty(username) || string.IsNullOrWhiteSpace(username))
 				throw new ArgumentNullException("username");
 
-			dynamic list = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username));
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
 
-			foreach (dynamic usr in list)
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+
+			if (user != null) 
 			{
 				MembershipUser memUser = new MembershipUser(
 					this.Name,
-					usr.Username,
-					usr.UserId,
-					usr.Email,
-					usr.PasswordQuestion == null ? "" : usr.PasswordQuestion,
-					usr.Comment == null ? "" : usr.Comment,
-					usr.IsApproved,
+					user.Username,
+					user.UserId,
+					user.Email,
+					user.PasswordQuestion == null ? "" : user.PasswordQuestion,
+					user.Comment == null ? "" : user.Comment,
+					user.IsApproved,
 					false,
-					usr.DateCreated,
-					usr.DateLastLogin == null ? DateTime.MinValue : (DateTime)usr.DateLastLogin,
-					usr.DateLastActivity == null ? DateTime.MinValue : (userIsOnline) ? DateTime.Now : (DateTime)usr.DateLastActivity,
-					usr.DateLastPasswordChange,
+					user.DateCreated,
+					user.DateLastLogin == null ? DateTime.MinValue : (DateTime)user.DateLastLogin,
+					user.DateLastActivity == null ? DateTime.MinValue : (userIsOnline) ? DateTime.Now : (DateTime)user.DateLastActivity,
+					user.DateLastPasswordChange,
 					DateTime.MinValue
 				);
+
+				DataContext.Dispose();
+
 				return memUser;
 			}
 			return null;
@@ -294,9 +518,17 @@ namespace Holyprin.Web.Security
 
 		public override MembershipUser GetUser(object providerUserKey, bool userIsOnline)
 		{
+			if (providerUserKey == null)
+				throw new ArgumentNullException("providerUserKey");
+
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
 			if (providerUserKey != null)
 			{
 				dynamic usr = Users.Find(providerUserKey);
+
 				if (usr != null)
 				{
 					MembershipUser memUser = new MembershipUser(
@@ -314,6 +546,9 @@ namespace Holyprin.Web.Security
 						usr.DateLastPasswordChange,
 						DateTime.MinValue
 					);
+
+					DataContext.Dispose();
+
 					return memUser;
 				}
 			}
@@ -328,14 +563,13 @@ namespace Holyprin.Web.Security
 			if (!Regex.IsMatch(email, this.EmailRegularExpression))
 				return "";
 
-			dynamic list = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = '{0}'", email));
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
 
-			foreach (dynamic user in list)
-			{
-				return user.Username;
-			}
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = '{0}'", email)).Cast<dynamic>().FirstOrDefault();
 
-			return "";
+			return user != null ? user.Username : "";
 		}
 
 		#endregion
@@ -370,6 +604,10 @@ namespace Holyprin.Web.Security
 
 		private MembershipUserCollection FindUsers(string Where, string Match, int pageIndex, int pageSize, out int totalRecords)
 		{
+			//Thread Safety
+			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.UserType);
+
 			pageIndex = (pageIndex == 1) ? 0 : pageIndex;
 
 			string baseQuery = "SELECT * FROM $Users";
@@ -417,6 +655,8 @@ namespace Holyprin.Web.Security
 				));
 			});
 
+			DataContext.Dispose();
+
 			return muc;
 		}
 
@@ -449,7 +689,6 @@ namespace Holyprin.Web.Security
 
 		#region Not Implemented...
 
-		//Function will never be implemented, security risk...
 		public override string GetPassword(string username, string answer)
 		{
 			throw new NotImplementedException();

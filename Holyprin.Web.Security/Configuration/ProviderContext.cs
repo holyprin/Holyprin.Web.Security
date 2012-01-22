@@ -13,8 +13,8 @@ namespace Holyprin.Web.Security.Configuration
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<ProviderUser>().ToTable(CFMembershipSettings.Settings.UserTable);
-			modelBuilder.Entity<ProviderRole>().ToTable(CFMembershipSettings.Settings.RoleTable);
+			modelBuilder.Entity<ProviderUser>().ToTable(CFMembershipSettings.UserTable);
+			modelBuilder.Entity<ProviderRole>().ToTable(CFMembershipSettings.RoleTable);
 
 			modelBuilder.Entity<ProviderUser>()
 				.HasMany<ProviderRole>(u => u.Roles)

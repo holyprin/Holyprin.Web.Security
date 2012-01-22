@@ -1,0 +1,79 @@
+﻿@model IEnumerable<Holyprin.Web.Security.MVC3.Entities.User>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Users:</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th></th>
+        <th>
+            User Name
+        </th>
+        <th>
+            Email
+        </th>
+        <th>
+            Comment
+        </th>
+        <th>
+            Approved?
+        </th>
+        <th>
+            Created On
+        </th>
+        <th>
+            Last Login
+        </th>
+        <th>
+            Last Password Change
+        </th>
+        <th>
+            # Roles
+        </th>
+		<th>
+			Testing Column
+		</th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink("Details", "Details", new { id=item.UserId }) | @Html.ActionLink("Edit", "Edit", new { id=item.UserId }) | @Html.ActionLink("Roles", "AddRole", new { id=item.UserId }) | @Html.ActionLink("Delete", "Delete", new { id=item.UserId })
+        </td>
+        <td>
+			@item.Username
+        </td>
+        <td>
+			@item.Email
+        </td>
+        <td>
+			@item.Comment
+        </td>
+        <td>
+			@item.IsApproved
+        </td>
+        <td>
+			@String.Format("{0:g}", item.DateCreated)
+        </td>
+        <td>
+			@String.Format("{0:g}", item.DateLastLogin)
+        </td>
+        <td>
+			@String.Format("{0:g}", item.DateLastPasswordChange)
+        </td>
+        <td>
+			@(item.Roles == null ? "None" : item.Roles.Count.ToString())
+        </td>
+		<td>
+			@item.Testing
+		</td>
+    </tr>
+}
+
+</table>

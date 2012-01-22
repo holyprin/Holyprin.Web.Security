@@ -1,0 +1,66 @@
+﻿@model Holyprin.Web.Security.MVC3.Entities.User
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>User</legend>
+
+    <div class="display-label">Username</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Username)
+    </div>
+
+    <div class="display-label">Email</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Email)
+    </div>
+
+    <div class="display-label">Comment</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Comment)
+    </div>
+
+    <div class="display-label">IsApproved</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.IsApproved)
+    </div>
+
+    <div class="display-label">DateCreated</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DateCreated)
+    </div>
+
+    <div class="display-label">DateLastLogin</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DateLastLogin)
+    </div>
+
+    <div class="display-label">DateLastActivity</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DateLastActivity)
+    </div>
+
+    <div class="display-label">DateLastPasswordChange</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DateLastPasswordChange)
+    </div>
+
+    <div class="display-label">PasswordQuestion</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.PasswordQuestion)
+    </div>
+
+    <div class="display-label">PasswordAnswer</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.PasswordAnswer)
+    </div>
+
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.UserId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

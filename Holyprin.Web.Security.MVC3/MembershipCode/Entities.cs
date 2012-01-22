@@ -10,6 +10,7 @@ namespace Holyprin.Web.Security.MVC3.Entities
 	public class User : IProviderUser<Role, Guid>
 	{
 		[Key]
+		//[DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Used for Microsoft SQL Server / SQL Server Express DO NOT USE WITH SQL Server Compact Edition
 		public Guid UserId { get; set; }
 
 		public string Username { get; set; }

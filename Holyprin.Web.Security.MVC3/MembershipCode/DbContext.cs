@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Web.Security;
 using Holyprin.Web.Security;
 using Holyprin.Web.Security.MVC3.Entities;
+using System.Threading;
 
 namespace Holyprin.Web.Security.MVC3.MembershipCode
 {
@@ -14,7 +15,7 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 		public DbSet<User> Users { get; set; }
 		public DbSet<Role> Roles { get; set; }
 
-		public MyBaseContext() : base("ApplicationServices") { }
+		public MyBaseContext() : base("ApplicationServicesExpress") { }
 	}
 	
 	public class DbInitializer : DropCreateDatabaseAlways<MyBaseContext>
@@ -23,9 +24,9 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 		{
 			var roles = new List<Role> 
 			{
-				new Role { Name = "Administrator" },
-				new Role { Name = "User" },
-				new Role { Name = "New" }
+				new Role { Name = "Administrator", RoleId = Guid.NewGuid() },
+				new Role { Name = "User", RoleId = Guid.NewGuid() },
+				new Role { Name = "New", RoleId = Guid.NewGuid() }
 			};
 
 			roles.ForEach(r => context.Roles.Add(r));
@@ -65,6 +66,32 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 			}
 
 			context.SaveChanges();
+
+			//Thread testing for provider, do not keep, using new threads for max memory usage, if you need to use basic threading, use the threadpool.
+			/*Thread xThread = new Thread(new ThreadStart(
+				delegate
+				{
+					MembershipCreateStatus stat = new MembershipCreateStatus();
+					for (int i = 0; i <= 100; i++)
+					{
+						Membership.CreateUser("TestX" + i.ToString(), "Testing1234", "holyprin" + i.ToString() + "x@gmail.com", null, null, true, null, out stat);
+					}
+				}
+			));
+			xThread.Start();
+
+			Thread yThread = new Thread(new ThreadStart(
+				delegate
+				{
+					MembershipCreateStatus stat = new MembershipCreateStatus();
+					for (int i = 0; i <= 100; i++)
+					{
+						Membership.CreateUser("TestY" + i.ToString(), "Testing1234", "holyprin" + i.ToString() + "y@gmail.com", null, null, true, null, out stat);
+					}
+				}
+			));
+			yThread.Start();
+			*/
 
 			base.Seed(context);
 		}
