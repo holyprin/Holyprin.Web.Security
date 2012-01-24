@@ -254,7 +254,7 @@ namespace Holyprin.Web.Security
 			catch (Exception)
 			{
 				throw;
-			}
+			}	
 		}
 
 		public override bool RoleExists(string roleName)
@@ -264,6 +264,8 @@ namespace Holyprin.Web.Security
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+
+			DataContext.Dispose();
 
 			return (role != null) ? true : false;
 		}
