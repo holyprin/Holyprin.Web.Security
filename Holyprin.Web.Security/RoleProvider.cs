@@ -57,9 +57,9 @@ namespace Holyprin.Web.Security
 
 				DataContext.SaveChanges();
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
-				throw ex;
+				throw;
 			}
 
 			DataContext.Dispose();
@@ -112,16 +112,17 @@ namespace Holyprin.Web.Security
 						throw new Exception(string.Format("Role: {0} contains users. Will not delete", roleName));
 					
 					role.Users.Clear();
+					
+					DataContext.SaveChanges();
 				}
-
-				DataContext.SaveChanges();
-
-				DataContext.Dispose();
 			}
 			catch (Exception)
 			{
 				return false;
 			}
+			
+			DataContext.Dispose();
+			
 			return true;
 		}
 
@@ -230,8 +231,8 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
-			//try
-			//{
+			try
+			{
 				foreach (string roleStr in roleNames)
 				{
 					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleStr)).Cast<dynamic>().FirstOrDefault();
@@ -249,11 +250,11 @@ namespace Holyprin.Web.Security
 				DataContext.SaveChanges();
 
 				DataContext.Dispose();
-			//}
-			/*catch (Exception ex)
+			}
+			catch (Exception)
 			{
-				throw ex;
-			}*/
+				throw;
+			}
 		}
 
 		public override bool RoleExists(string roleName)

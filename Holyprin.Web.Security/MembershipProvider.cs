@@ -102,6 +102,8 @@ namespace Holyprin.Web.Security
 
 			status = MembershipCreateStatus.Success;
 
+			MembershipUser user = null;
+
 			if (string.IsNullOrEmpty(username) || string.IsNullOrWhiteSpace(username))
 				throw new ArgumentNullException("username");
 			if (string.IsNullOrEmpty(password) || string.IsNullOrWhiteSpace(password))
@@ -192,19 +194,20 @@ namespace Holyprin.Web.Security
 				}
 				try
 				{
-					int test = DataContext.SaveChanges();
-					var blah = test;
+					DataContext.SaveChanges();
 				}
 				catch (Exception)
 				{
 					status = MembershipCreateStatus.ProviderError;
 				}
 
-				DataContext.Dispose();
-
-				return this.GetUser(usr.UserId, false);
+				user = this.GetUser(usr.UserId, false);
+				
 			}
-			return null;
+
+			DataContext.Dispose();
+			
+			return user;
 		}
 
 		public override bool DeleteUser(string username, bool deleteAllRelatedData)
@@ -261,9 +264,9 @@ namespace Holyprin.Web.Security
 
 					DataContext.SaveChanges();
 				}
-				catch (Exception ex)
+				catch(Exception)
 				{
-					throw ex;
+					throw;
 				}
 			}
 			DataContext.Dispose();
@@ -486,11 +489,13 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
+			MembershipUser memUser = null;
+
 			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null) 
 			{
-				MembershipUser memUser = new MembershipUser(
+				memUser = new MembershipUser(
 					this.Name,
 					user.Username,
 					user.UserId,
@@ -505,12 +510,11 @@ namespace Holyprin.Web.Security
 					user.DateLastPasswordChange,
 					DateTime.MinValue
 				);
-
-				DataContext.Dispose();
-
-				return memUser;
 			}
-			return null;
+
+			DataContext.Dispose();
+
+			return memUser;
 		}
 
 		public override MembershipUser GetUser(object providerUserKey, bool userIsOnline)
@@ -522,13 +526,15 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
+			MembershipUser memUser = null;
+
 			if (providerUserKey != null)
 			{
 				dynamic usr = Users.Find(providerUserKey);
 
 				if (usr != null)
 				{
-					MembershipUser memUser = new MembershipUser(
+					memUser = new MembershipUser(
 						this.Name,
 						usr.Username,
 						usr.UserId,
@@ -543,13 +549,12 @@ namespace Holyprin.Web.Security
 						usr.DateLastPasswordChange,
 						DateTime.MinValue
 					);
-
-					DataContext.Dispose();
-
-					return memUser;
 				}
 			}
-			return null;
+			
+			DataContext.Dispose();
+			
+			return memUser;
 		}
 
 		public override string GetUserNameByEmail(string email)
