@@ -122,14 +122,14 @@ namespace Holyprin.Web.Security.Configuration
 			set { this["roleTable"] = value; }
 		}
 
-		[ConfigurationProperty("allowLoginWithEmail", DefaultValue = "true", IsRequired = true)]
+		[ConfigurationProperty("allowLoginWithEmail", DefaultValue = "true", IsRequired = false)]
 		public string allowLoginWithEmail
 		{
 			get { return this["allowLoginWithEmail"].ToString(); }
 			set { this["allowLoginWithEmail"] = value; }
 		}
 
-		[ConfigurationProperty("useEmailAsUsername", DefaultValue = "false", IsRequired = true)]
+		[ConfigurationProperty("useEmailAsUsername", DefaultValue = "false", IsRequired = false)]
 		public string useEmailAsUsername
 		{
 			get { return this["useEmailAsUsername"].ToString(); }
