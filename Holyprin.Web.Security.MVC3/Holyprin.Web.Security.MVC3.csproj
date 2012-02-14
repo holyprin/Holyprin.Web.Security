@@ -71,6 +71,7 @@
     <Compile Include="MembershipCode\DbContext.cs" />
     <Compile Include="MembershipCode\Entities.cs" />
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\UserModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

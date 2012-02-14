@@ -41,13 +41,12 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 				User user = context.Users.Find(memUser.ProviderUserKey);
 				Role newRole = context.Roles.FirstOrDefault(r => r.Name == "New");
 
-
 				user.Roles = new List<Role>
 				{
 					newRole
 				};
 
-				user.Testing = "Testing Demo";
+				user.ExtraField = "Testing Demo";
 			}
 
 			memUser = Membership.CreateUser("Admin", "admin123", "admin@gmail.com");
@@ -62,7 +61,7 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 					adminRole,
 					userRole
 				};
-				user.Testing = "Testing Admin";
+				user.ExtraField = "Testing Admin";
 			}
 
 			context.SaveChanges();

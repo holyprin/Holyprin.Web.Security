@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Holyprin.Web.Security.MVC3.Entities;
 using Holyprin.Web.Security.MVC3.MembershipCode;
 using System.Web.Security;
+using Holyprin.Web.Security.MVC3.Models;
 
 namespace Holyprin.Web.Security.MVC3.Controllers
 { 
@@ -46,14 +47,17 @@ namespace Holyprin.Web.Security.MVC3.Controllers
 
         [HttpPost]
 		[Authorize(Roles = "Administrator")]
-        public ActionResult Create(User user)
+        public ActionResult Create(CreateUserModel user)
         {
             if (ModelState.IsValid)
             {
-                //user.UserId = Guid.NewGuid();
-                db.Users.Add(user);
-                db.SaveChanges();
-                return RedirectToAction("Index");  
+				MembershipCreateStatus status = MembershipCreateStatus.InvalidPassword;
+				Membership.CreateUser(user.Username, user.Password, user.Email, "None?", "Answer.", user.IsApproved, out status);
+				if (status != MembershipCreateStatus.Success)
+				{
+					throw new Exception(status.ToString());
+				}
+                return RedirectToAction("Index");
             }
 
             return View(user);
@@ -64,8 +68,13 @@ namespace Holyprin.Web.Security.MVC3.Controllers
 		[Authorize(Roles = "Administrator")]
         public ActionResult Edit(Guid id)
         {
-            User user = db.Users.Find(id);
-            return View(user);
+			User tUser = db.Users.Find(id);
+			if (tUser != null)
+			{
+				EditUserModel user = new EditUserModel { UserId = id, Username = tUser.Username, Email = tUser.Email, IsApproved = tUser.IsApproved, ExtraField = tUser.ExtraField };
+				return View(user);
+			}
+			return View(new EditUserModel());
         }
 
         //
@@ -73,12 +82,19 @@ namespace Holyprin.Web.Security.MVC3.Controllers
 
         [HttpPost]
 		[Authorize(Roles = "Administrator")]
-        public ActionResult Edit(User user)
+        public ActionResult Edit(EditUserModel user)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(user).State = EntityState.Modified;
-                db.SaveChanges();
+				Entities.User usr = db.Users.Find(user.UserId);
+
+				usr.ExtraField = user.ExtraField;
+				usr.Email = user.Email;
+				usr.Username = user.Username;
+				usr.IsApproved = user.IsApproved;
+
+				db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
             return View(user);

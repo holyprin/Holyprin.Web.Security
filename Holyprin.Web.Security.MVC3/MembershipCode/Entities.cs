@@ -45,7 +45,7 @@ namespace Holyprin.Web.Security.MVC3.Entities
 		public DateTime DateLastPasswordChange { get; set; }
 
 		//Test method NOT returned in the base Interface
-		public string Testing { get; set; }
+		public string ExtraField { get; set; }
 
 		public virtual ICollection<Role> Roles { get; set; }
 	}
