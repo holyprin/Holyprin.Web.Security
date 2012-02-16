@@ -1,0 +1,21 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Holyprin.Web.Security</id>
+		<version>2.0.2</version>
+		<title>Holyprin's Code-First Membership</title>
+		<authors>Alicia Tams (Holyprin)</authors>
+		<owners>Alicia Tams (Holyprin)</owners>
+		<projectUrl>https://github.com/holyprin/Holyprin.Web.Security</projectUrl>
+		<description>Code-First Membership implementation using reflection and abstraction. Special Thanks: Michal Altair Valášek (Altairis), I based the design off his model and used / modified a few of his extension methods.</description>
+		<summary>Code First Membership implementation using reflection and abstraction</summary>
+		<language>en-US</language>
+		<dependencies>
+			<dependency id="EntityFramework" version="4.3.0" />
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="Holyprin.Web.Security.dll" target="lib\net40\Holyprin.Web.Security.dll" />
+		<file src="*.pdb" target="lib\net40" />
+	</files>
+</package>
