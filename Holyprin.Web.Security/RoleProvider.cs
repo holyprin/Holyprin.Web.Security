@@ -37,13 +37,13 @@ namespace Holyprin.Web.Security
 			{
 				foreach (string roleStr in roleNames)
 				{
-					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleStr)).Cast<dynamic>().FirstOrDefault();
+					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleStr)).Cast<dynamic>().FirstOrDefault();
 
 					if (role != null)
 					{
 						foreach (string userStr in usernames)
 						{
-							dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE UserName = '{0}'", userStr)).Cast<dynamic>().FirstOrDefault();
+							dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE UserName = @user"), new System.Data.SqlClient.SqlParameter("@user", userStr)).Cast<dynamic>().FirstOrDefault();
 
 							if (user != null)
 								if (!role.Users.Contains(user))
@@ -68,7 +68,7 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
-			var checkRole = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+			var checkRole = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 			if (checkRole != null)
 				throw new ArgumentException(string.Format("The role: {0} already exists", roleName));
 
@@ -102,7 +102,7 @@ namespace Holyprin.Web.Security
 
 			try
 			{
-				dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+				dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 				if (role != null)
 				{
 					if (role.Users.Count() > 0 && throwOnPopulatedRole)
@@ -129,7 +129,7 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
-			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 			if (role != null)
 			{
 				List<string> users = new List<string>();
@@ -170,7 +170,7 @@ namespace Holyprin.Web.Security
 
 			List<string> roles = new List<string>();
 
-			var user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			var user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 			if (user != null)
 			{
 				foreach(dynamic role in user.Roles) {
@@ -191,7 +191,7 @@ namespace Holyprin.Web.Security
 
 			List<string> users = new List<string>();
 
-			var role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+			var role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 			if (role != null)
 			{
 				foreach (dynamic user in role.Users)
@@ -211,8 +211,8 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
-			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
+			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null && role != null)
 				return user.Roles.Contains(role);
@@ -232,12 +232,12 @@ namespace Holyprin.Web.Security
 			{
 				foreach (string roleStr in roleNames)
 				{
-					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleStr)).Cast<dynamic>().FirstOrDefault();
+					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleStr)).Cast<dynamic>().FirstOrDefault();
 					if (role != null)
 					{
 						foreach (string userStr in usernames)
 						{
-							dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", userStr)).Cast<dynamic>().FirstOrDefault();
+							dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"),new System.Data.SqlClient.SqlParameter("@username", userStr)).Cast<dynamic>().FirstOrDefault();
 							if (user != null)
 								if (role.Users.Contains(user))
 									role.Users.Remove(user);
@@ -260,7 +260,7 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
-			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleName)).Cast<dynamic>().FirstOrDefault();
+			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 
 			DataContext.Dispose();
 

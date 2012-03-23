@@ -219,7 +219,7 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrWhiteSpace(username))
 				throw new ArgumentNullException("username");
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"),new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null)
 			{
@@ -289,13 +289,13 @@ namespace Holyprin.Web.Security
 			{
 				if (Regex.IsMatch(username, this.EmailRegularExpression))
 				{
-					user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+					user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 				}
-				else { user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault(); }
+				else { user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault(); }
 			}
 			else
 			{
-				user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+				user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 			}
 
 			bool result = false;
@@ -328,7 +328,7 @@ namespace Holyprin.Web.Security
 
 			string newPassword = null;
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null)
 			{
@@ -368,7 +368,7 @@ namespace Holyprin.Web.Security
 
 			bool result = false;
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username", new System.Data.SqlClient.SqlParameter("@username", username))).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null)
 			{
@@ -415,7 +415,7 @@ namespace Holyprin.Web.Security
 
 			bool result = false;
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null)
 			{
@@ -450,7 +450,7 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrWhiteSpace(emailToMatch))
 				throw new ArgumentNullException("emailToMatch");
 
-			return this.FindUsers("Email = '{0}'", emailToMatch, pageIndex, pageSize, out totalRecords);
+			return this.FindUsers("Email = @email", new System.Data.SqlClient.SqlParameter("@email",emailToMatch), pageIndex, pageSize, out totalRecords);
 		}
 
 		public override MembershipUserCollection FindUsersByName(string usernameToMatch, int pageIndex, int pageSize, out int totalRecords)
@@ -458,7 +458,7 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrWhiteSpace(usernameToMatch))
 				throw new ArgumentNullException("usernameToMatch");
 
-			return this.FindUsers("Username = '{0}'", usernameToMatch, pageIndex, pageSize, out totalRecords);
+			return this.FindUsers("Username = @username", new System.Data.SqlClient.SqlParameter("@username", usernameToMatch), pageIndex, pageSize, out totalRecords);
 		}
 
 		public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
@@ -474,7 +474,7 @@ namespace Holyprin.Web.Security
 
 			DateTime cutoff = DateTime.Now.AddMinutes(-Membership.UserIsOnlineTimeWindow);
 
-			int count = DataContext.Database.SqlQuery(typeof(int), q("SELECT COUNT(*) FROM $Users WHERE DateLastActivity > '{0}'", cutoff))
+			int count = DataContext.Database.SqlQuery(typeof(int), q("SELECT COUNT(*) FROM $Users WHERE DateLastActivity > @CutOff"), new System.Data.SqlClient.SqlParameter("@CutOff", cutoff))
 				.Cast<int>().FirstOrDefault();
 
 			return count;
@@ -491,7 +491,7 @@ namespace Holyprin.Web.Security
 
 			MembershipUser memUser = null;
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = '{0}'", username)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username",username)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null) 
 			{
@@ -569,7 +569,7 @@ namespace Holyprin.Web.Security
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = '{0}'", email)).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = @email"), new System.Data.SqlClient.SqlParameter("@email", email)).Cast<dynamic>().FirstOrDefault();
 
 			return user != null ? user.Username : "";
 		}
@@ -604,7 +604,7 @@ namespace Holyprin.Web.Security
 			}
 		}
 
-		private MembershipUserCollection FindUsers(string Where, string Match, int pageIndex, int pageSize, out int totalRecords)
+		private MembershipUserCollection FindUsers(string Where, System.Data.SqlClient.SqlParameter Match, int pageIndex, int pageSize, out int totalRecords)
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
@@ -620,9 +620,9 @@ namespace Holyprin.Web.Security
 
 			List<dynamic> list = new List<dynamic>();
 
-			if (!string.IsNullOrEmpty(Where) && !string.IsNullOrEmpty(Match))
+			if (!string.IsNullOrEmpty(Where) && Match != null)
 			{
-				foundUsers = Users.SqlQuery(q(baseQuery + " WHERE " + Where, Match));
+				foundUsers = Users.SqlQuery(q(baseQuery + " WHERE " + Where), Match);
 			}
 			else
 			{
@@ -684,6 +684,7 @@ namespace Holyprin.Web.Security
 
 		private string q(string Query, params object[] paramerters)
 		{
+
 			return string.Format(Query.Replace("$Users", this.UserTableName).Replace("$Roles", this.RoleTableName), paramerters);
 		}
 
