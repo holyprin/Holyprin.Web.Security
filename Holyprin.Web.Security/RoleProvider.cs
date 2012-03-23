@@ -37,20 +37,17 @@ namespace Holyprin.Web.Security
 			{
 				foreach (string roleStr in roleNames)
 				{
-					dynamic dynRole = null;
 					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = '{0}'", roleStr)).Cast<dynamic>().FirstOrDefault();
 
 					if (role != null)
 					{
-						dynRole.Users = new List<dynamic>();
 						foreach (string userStr in usernames)
 						{
-							dynamic dynUser = null;
-							dynamic user = Roles.SqlQuery(q("SELECT * FROM $Users WHERE Name = '{0}'", userStr)).Cast<dynamic>().FirstOrDefault();
+							dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE UserName = '{0}'", userStr)).Cast<dynamic>().FirstOrDefault();
 
 							if (user != null)
-								if (!dynRole.Users.Contains(dynUser))
-									dynRole.Users.Add(dynUser);
+								if (!role.Users.Contains(user))
+									role.Users.Add(user);
 						}
 					}
 				}
@@ -61,7 +58,7 @@ namespace Holyprin.Web.Security
 			{
 				throw;
 			}
-
+			
 			DataContext.Dispose();
 		}
 

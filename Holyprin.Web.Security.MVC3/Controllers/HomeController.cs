@@ -26,6 +26,8 @@ namespace Holyprin.Web.Security.MVC3.Controllers
 			ViewBag.validated = Membership.ValidateUser("Demo", "demo1234");
 			ViewBag.usersInAdministrator = Roles.GetUsersInRole("Administrator");
 
+			Roles.AddUsersToRoles(new string[] { "User1", "User2", "User3" }, new string[] { "Role1", "Role2", "Role3" });
+
             return View(con.Roles.ToList());
         }
 

@@ -105,6 +105,13 @@ function Enable-Migrations
 
 .PARAMETER ConnectionProviderName
     Specifies the provider invariant name of the connection string.
+
+.PARAMETER IgnoreChanges
+    Scaffolds an empty migration ignoring any pending changes detected in the current model.
+    This can be used to create an initial, empty migration to enable Migrations for an existing
+    database. N.B. Doing this assumes that the target database schema is compatible with the
+    current model.
+
 #>
 function Add-Migration
 {
@@ -124,12 +131,13 @@ function Add-Migration
         [string] $ConnectionString,
         [parameter(ParameterSetName = 'ConnectionStringAndProviderName',
             Mandatory = $true)]
-        [string] $ConnectionProviderName)
+        [string] $ConnectionProviderName,
+        [switch] $IgnoreChanges)
 
     try
     {
         $commands = New-MigrationsCommands $ProjectName $StartUpProjectName $ConfigurationTypeName $ConnectionStringName $ConnectionString $ConnectionProviderName
-        $commands.AddMigration($Name, $Force)
+        $commands.AddMigration($Name, $Force, $IgnoreChanges)
     }
     catch [Exception]
     {

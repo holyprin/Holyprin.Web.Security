@@ -26,7 +26,10 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 			{
 				new Role { Name = "Administrator", RoleId = Guid.NewGuid() },
 				new Role { Name = "User", RoleId = Guid.NewGuid() },
-				new Role { Name = "New", RoleId = Guid.NewGuid() }
+				new Role { Name = "New", RoleId = Guid.NewGuid() },
+				new Role { Name = "Role1", RoleId = Guid.NewGuid() },
+				new Role { Name = "Role2", RoleId = Guid.NewGuid() },
+				new Role { Name = "Role3", RoleId = Guid.NewGuid() }
 			};
 
 			roles.ForEach(r => context.Roles.Add(r));
@@ -36,6 +39,11 @@ namespace Holyprin.Web.Security.MVC3.MembershipCode
 			MembershipCreateStatus status = new MembershipCreateStatus();
 
 			var memUser = Membership.CreateUser("Demo", "demo1234", "demo@gmail.com");
+
+			for (int i = 1; i <= 3; i++)
+			{
+				Membership.CreateUser("User" + i.ToString(), "user1234" + i.ToString(), "user" + i.ToString() + "@gmail.com");
+			}
 			if (status == MembershipCreateStatus.Success)
 			{
 				User user = context.Users.Find(memUser.ProviderUserKey);
