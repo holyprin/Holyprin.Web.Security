@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Configuration;
-using System.Reflection;
-using System.ComponentModel;
-using System.Data.Entity;
 
 namespace Holyprin.Web.Security.Configuration
 {

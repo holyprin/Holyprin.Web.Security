@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Web.Security;
+using System.Web.Services.Description;
 using Holyprin.Web.Security.Configuration;
 using System.Data.Entity;
 
@@ -14,18 +17,18 @@ namespace Holyprin.Web.Security
 
 		public override void Initialize(string name, System.Collections.Specialized.NameValueCollection config)
 		{
-			this.ApplicationName = config.GetConfigValue("applicationName", null);
-			this.userTableName = CFMembershipSettings.UserTable ?? "Users";
-			this.roleTableName = CFMembershipSettings.RoleTable ?? "Roles";
+			ApplicationName = config.GetConfigValue("applicationName", null);
+			userTableName = CFMembershipSettings.UserTable ?? "Users";
+			roleTableName = CFMembershipSettings.RoleTable ?? "Roles";
 
 			base.Initialize(name, config);
 		}
 
 		public override string ApplicationName { get; set; }
 
-		public string UserTableName { get { return this.userTableName; } }
+		public string UserTableName { get { return userTableName; } }
 
-		public string RoleTableName { get { return this.roleTableName; } }
+		public string RoleTableName { get { return roleTableName; } }
 		
 		public override void AddUsersToRoles(string[] usernames, string[] roleNames)
 		{
@@ -38,7 +41,6 @@ namespace Holyprin.Web.Security
 				foreach (string roleStr in roleNames)
 				{
 					dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleStr)).Cast<dynamic>().FirstOrDefault();
-
 					if (role != null)
 					{
 						foreach (string userStr in usernames)
@@ -58,8 +60,6 @@ namespace Holyprin.Web.Security
 			{
 				throw;
 			}
-			
-			DataContext.Dispose();
 		}
 
 		public override void CreateRole(string roleName)
@@ -269,7 +269,7 @@ namespace Holyprin.Web.Security
 
 		private string q(string Query, params object[] paramerters)
 		{
-			return string.Format(Query.Replace("$Users", this.UserTableName).Replace("$Roles", this.RoleTableName), paramerters);
+			return string.Format(Query.Replace("$Users", UserTableName).Replace("$Roles", RoleTableName), paramerters);
 		}
 	}
 }

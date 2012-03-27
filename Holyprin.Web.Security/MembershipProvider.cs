@@ -24,24 +24,21 @@ namespace Holyprin.Web.Security
 
 		public override void Initialize(string name, System.Collections.Specialized.NameValueCollection config)
 		{
-			if (config != null)
-				this.ApplicationName = config.GetConfigValue("applicationName", null);
-			else
-				throw new ArgumentNullException("config");
+			ApplicationName = config.GetConfigValue("applicationName", null);
 
-			this.minRequiredNonAlphanumericCharacters = config.GetConfigValue("minRequiredNonAlphanumericCharacters", 0);
-			this.minRequiredPasswordLength = config.GetConfigValue("minRequiredPasswordLength", 8);
-			this.passwordStrengthRegularExpression = config.GetConfigValue("passwordStrengthRegularExpression", null);
-			this.requiresUniqueEmail = config.GetConfigValue("requiresUniqueEmail", true);
-			this.generatedNonAlpha = config.GetConfigValue("generatedNonAlpha", 6);
-			this.generatedPassLength = config.GetConfigValue("generatedPassLength", 12);
-			this.emailRegularExpression = config.GetConfigValue("emailRegularExpression", DEFAULT_EMAIL_REGEX);
-			this.requiresQuestionAndAnswer = config.GetConfigValue("requiresQuestionAndAnswer", false);
-			this.enablePasswordReset = config.GetConfigValue("enablePasswordReset", true);
-			this.userTableName = CFMembershipSettings.UserTable ?? "Users";
-			this.roleTableName = CFMembershipSettings.RoleTable ?? "Roles";
-			this.allowLoginWithEmail = CFMembershipSettings.AllowLoginWithEmail;
-			this.useEmailAsUsername = CFMembershipSettings.UseEmailAsUsername;
+			minRequiredNonAlphanumericCharacters = config.GetConfigValue("minRequiredNonAlphanumericCharacters", 0);
+			minRequiredPasswordLength = config.GetConfigValue("minRequiredPasswordLength", 8);
+			passwordStrengthRegularExpression = config.GetConfigValue("passwordStrengthRegularExpression", null);
+			requiresUniqueEmail = config.GetConfigValue("requiresUniqueEmail", true);
+			generatedNonAlpha = config.GetConfigValue("generatedNonAlpha", 6);
+			generatedPassLength = config.GetConfigValue("generatedPassLength", 12);
+			emailRegularExpression = config.GetConfigValue("emailRegularExpression", DEFAULT_EMAIL_REGEX);
+			requiresQuestionAndAnswer = config.GetConfigValue("requiresQuestionAndAnswer", false);
+			enablePasswordReset = config.GetConfigValue("enablePasswordReset", true);
+			userTableName = CFMembershipSettings.UserTable ?? "Users";
+			roleTableName = CFMembershipSettings.RoleTable ?? "Roles";
+			allowLoginWithEmail = CFMembershipSettings.AllowLoginWithEmail;
+			useEmailAsUsername = CFMembershipSettings.UseEmailAsUsername;
 
 			base.Initialize(name, config);
 		}
@@ -80,15 +77,15 @@ namespace Holyprin.Web.Security
 			get { return requiresUniqueEmail; }
 		}
 
-		public string EmailRegularExpression { get { return this.emailRegularExpression; } }
+		public string EmailRegularExpression { get { return  emailRegularExpression; } }
 
-		public bool UseEmailAsUsername { get { return this.useEmailAsUsername; } }
+		public bool UseEmailAsUsername { get { return useEmailAsUsername; } }
 
-		public bool AllowLoginWithEmail { get { return this.allowLoginWithEmail; } }
+		public bool AllowLoginWithEmail { get { return allowLoginWithEmail; } }
 
-		public string UserTableName { get { return this.userTableName; } }
+		public string UserTableName { get { return userTableName; } }
 
-		public string RoleTableName { get { return this.roleTableName; } }
+		public string RoleTableName { get { return roleTableName; } }
 
 		#endregion
 
@@ -111,7 +108,7 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
 				throw new ArgumentNullException("email");
 
-			if (this.RequiresQuestionAndAnswer)
+			if (RequiresQuestionAndAnswer)
 			{
 				if (string.IsNullOrEmpty(passwordQuestion) || string.IsNullOrWhiteSpace(passwordQuestion))
 					throw new ArgumentNullException("passwordQuestion");
@@ -126,26 +123,26 @@ namespace Holyprin.Web.Security
 				status = MembershipCreateStatus.InvalidPassword;
 
 			var args = new ValidatePasswordEventArgs(username, password, true);
-			this.OnValidatingPassword(args);
+			OnValidatingPassword(args);
 			if (args.Cancel)
 			{
 				if (args.FailureInformation != null) throw args.FailureInformation;
 				status = MembershipCreateStatus.InvalidPassword;
 			}
 
-			if (!Regex.IsMatch(email, this.EmailRegularExpression))
+			if (!Regex.IsMatch(email, EmailRegularExpression))
 				status = MembershipCreateStatus.InvalidEmail;
 
-			if (this.UseEmailAsUsername)
+			if (UseEmailAsUsername)
 				username = email;
 
-			if (this.RequiresUniqueEmail && this.GetUserNameByEmail(email).Trim().Length > 0)
+			if (RequiresUniqueEmail && GetUserNameByEmail(email).Trim().Length > 0)
 				status = MembershipCreateStatus.DuplicateEmail;
 
-			if (this.GetUser(username, false) != null)
+			if (GetUser(username, false) != null)
 				status = MembershipCreateStatus.DuplicateUserName;
 
-			if (providerUserKey != null && this.GetUser(providerUserKey, false) != null)
+			if (providerUserKey != null && GetUser(providerUserKey, false) != null)
 				status = MembershipCreateStatus.DuplicateProviderUserKey;
 
 			if (status == MembershipCreateStatus.Success)
@@ -201,7 +198,7 @@ namespace Holyprin.Web.Security
 					status = MembershipCreateStatus.ProviderError;
 				}
 
-				user = this.GetUser(usr.UserId, false);
+				user = GetUser(usr.UserId, false);
 				
 			}
 
@@ -287,7 +284,7 @@ namespace Holyprin.Web.Security
 
 			if ((AllowLoginWithEmail || UseEmailAsUsername) && RequiresUniqueEmail)
 			{
-				if (Regex.IsMatch(username, this.EmailRegularExpression))
+				if (Regex.IsMatch(username, EmailRegularExpression))
 				{
 					user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 				}
@@ -302,7 +299,7 @@ namespace Holyprin.Web.Security
 
 			if (user != null)
 			{
-				if (this.VerifyPassword(password, user.PasswordSalt, user.PasswordHash))
+				if (VerifyPassword(password, user.PasswordSalt, user.PasswordHash))
 				{
 					user.DateLastLogin = DateTime.Now;
 					user.DateLastActivity = DateTime.Now;
@@ -332,10 +329,10 @@ namespace Holyprin.Web.Security
 
 			if (user != null)
 			{
-				if ((this.EnablePasswordReset && !this.RequiresQuestionAndAnswer) || ((answer.ToLower().Trim() == user.PasswordAnswer.ToLower().Trim())) && (this.RequiresQuestionAndAnswer))
+				if ((EnablePasswordReset && !RequiresQuestionAndAnswer) || ((answer.ToLower().Trim() == user.PasswordAnswer.ToLower().Trim())) && (RequiresQuestionAndAnswer))
 				{
-					newPassword = Membership.GeneratePassword(this.generatedPassLength, this.generatedNonAlpha);
-					dynamic temp = this.SetPassword(user, newPassword);
+					newPassword = Membership.GeneratePassword(generatedPassLength, generatedNonAlpha);
+					dynamic temp = SetPassword(user, newPassword);
 
 					user.PasswordHash = temp.PasswordHash;
 					user.PasswordSalt = temp.PasswordSalt;
@@ -374,10 +371,10 @@ namespace Holyprin.Web.Security
 			{
 				try
 				{
-					bool verifiedOld = this.VerifyPassword(oldPassword, user.PasswordSalt, user.PasswordHash);
+					bool verifiedOld = VerifyPassword(oldPassword, user.PasswordSalt, user.PasswordHash);
 					if (verifiedOld)
 					{
-						dynamic temp = this.SetPassword(user, newPassword);
+						dynamic temp = SetPassword(user, newPassword);
 
 						user.PasswordHash = temp.PasswordHash;
 						user.PasswordSalt = temp.PasswordSalt;
@@ -419,7 +416,7 @@ namespace Holyprin.Web.Security
 
 			if (user != null)
 			{
-				if (this.VerifyPassword(password, user.PasswordSalt, user.PasswordHash))
+				if (VerifyPassword(password, user.PasswordSalt, user.PasswordHash))
 				{
 					try
 					{
@@ -450,7 +447,7 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrWhiteSpace(emailToMatch))
 				throw new ArgumentNullException("emailToMatch");
 
-			return this.FindUsers("Email = @email", new System.Data.SqlClient.SqlParameter("@email",emailToMatch), pageIndex, pageSize, out totalRecords);
+			return FindUsers("Email = @email", new System.Data.SqlClient.SqlParameter("@email",emailToMatch), pageIndex, pageSize, out totalRecords);
 		}
 
 		public override MembershipUserCollection FindUsersByName(string usernameToMatch, int pageIndex, int pageSize, out int totalRecords)
@@ -458,12 +455,12 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrWhiteSpace(usernameToMatch))
 				throw new ArgumentNullException("usernameToMatch");
 
-			return this.FindUsers("Username = @username", new System.Data.SqlClient.SqlParameter("@username", usernameToMatch), pageIndex, pageSize, out totalRecords);
+			return FindUsers("Username = @username", new System.Data.SqlClient.SqlParameter("@username", usernameToMatch), pageIndex, pageSize, out totalRecords);
 		}
 
 		public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
 		{
-			return this.FindUsers(null, null, pageIndex, pageSize, out totalRecords);
+			return FindUsers(null, null, pageIndex, pageSize, out totalRecords);
 		}
 
 		public override int GetNumberOfUsersOnline()
@@ -496,7 +493,7 @@ namespace Holyprin.Web.Security
 			if (user != null) 
 			{
 				memUser = new MembershipUser(
-					this.Name,
+					Name,
 					user.Username,
 					user.UserId,
 					user.Email,
@@ -535,7 +532,7 @@ namespace Holyprin.Web.Security
 				if (usr != null)
 				{
 					memUser = new MembershipUser(
-						this.Name,
+						Name,
 						usr.Username,
 						usr.UserId,
 						usr.Email,
@@ -562,7 +559,7 @@ namespace Holyprin.Web.Security
 			if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
 				throw new ArgumentNullException("email", "Email cannot be null or empty");
 
-			if (!Regex.IsMatch(email, this.EmailRegularExpression))
+			if (!Regex.IsMatch(email, EmailRegularExpression))
 				return "";
 
 			//Thread Safety
@@ -641,7 +638,7 @@ namespace Holyprin.Web.Security
 			list.ForEach(usr =>
 			{
 				muc.Add(new MembershipUser(
-					this.Name,
+					Name,
 					usr.Username,
 					usr.UserId,
 					usr.Email,
@@ -669,7 +666,7 @@ namespace Holyprin.Web.Security
 				try
 				{
 					byte[] passwordSalt, passwordHash;
-					this.HashPassword(password, out passwordSalt, out passwordHash);
+					HashPassword(password, out passwordSalt, out passwordHash);
 					user.PasswordHash = passwordHash;
 					user.PasswordSalt = passwordSalt;
 				}
@@ -685,7 +682,7 @@ namespace Holyprin.Web.Security
 		private string q(string Query, params object[] paramerters)
 		{
 
-			return string.Format(Query.Replace("$Users", this.UserTableName).Replace("$Roles", this.RoleTableName), paramerters);
+			return string.Format(Query.Replace("$Users", UserTableName).Replace("$Roles", RoleTableName), paramerters);
 		}
 
 		#endregion

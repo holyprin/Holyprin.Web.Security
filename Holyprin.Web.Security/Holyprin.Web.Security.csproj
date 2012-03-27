@@ -52,19 +52,18 @@
   <ItemGroup>
     <Compile Include="Configuration\CFMembershipSettings.cs" />
     <Compile Include="Configuration\ProviderContext.cs" />
+    <Compile Include="Abstract\BaseRole.cs" />
+    <Compile Include="Abstract\BaseUser.cs" />
+    <Compile Include="Configuration\ExtensionMethods.cs" />
     <Compile Include="Entities\ProviderRole.cs" />
     <Compile Include="Entities\ProviderUser.cs" />
-    <Compile Include="Configuration\ExtensionMethods.cs" />
     <Compile Include="Interfaces\IProviderRole.cs" />
     <Compile Include="Interfaces\IProviderUser.cs" />
-    <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="MembershipProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleProvider.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Service\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
     <None Include="package.nuspec" />
