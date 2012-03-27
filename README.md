@@ -69,7 +69,7 @@ Properties:
 + allowLoginWithEmail - Configures the provider to always search for the users email or username to login.
 
 
-##Model Configuration
+##Model Configuration - Interface Implementation
 ```c#
 public class Role : IProviderRole<User, Guid>
 {
@@ -78,6 +78,21 @@ public class Role : IProviderRole<User, Guid>
 	public Guid RoleId { get; set; }
 	public string Name { get; set; }
 	public virtual ICollection<User> Users { get; set; }
+}
+```
+
+OR
+
+##Model Configuration - Abstract Class Implementation
+```c#
+public class Role : BaseRole<User, Guid>
+{
+	/*
+	/	Base class only applies the Key attribute override and add DatabaseGenerated if needed.
+	*/
+	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Used for Microsoft SQL Server / SQL Server Express DO NOT USE WITH SQL Server Compact Edition
+	public override Guid RoleId { get; set; } 
 }
 ```
 
