@@ -95,7 +95,7 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			status = MembershipCreateStatus.Success;
 
@@ -211,7 +211,7 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			if (string.IsNullOrWhiteSpace(username))
 				throw new ArgumentNullException("username");
@@ -227,7 +227,7 @@ namespace Holyprin.Web.Security
 				Users.Remove(user);
 			}
 
-			bool result = (DataContext.SaveChanges() > 0) ? true : false;
+			bool result = (DataContext.SaveChanges() > 0);
 
 			DataContext.Dispose();
 
@@ -241,30 +241,23 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			dynamic usr = Users.Find(user.ProviderUserKey);
 
 			if (usr != null)
 			{
-				try
-				{
-					usr.Username = user.UserName;
-					usr.IsApproved = user.IsApproved;
-					usr.DateLastActivity = user.LastActivityDate;
-					usr.DateLastLogin = user.LastLoginDate;
-					usr.DateLastPasswordChange = user.LastPasswordChangedDate;
-					usr.PasswordQuestion = user.PasswordQuestion;
-					usr.Email = user.Email;
-					usr.Comment = user.Comment;
-					usr.IsApproved = user.IsApproved;
+				usr.Username = user.UserName;
+				usr.IsApproved = user.IsApproved;
+				usr.DateLastActivity = user.LastActivityDate;
+				usr.DateLastLogin = user.LastLoginDate;
+				usr.DateLastPasswordChange = user.LastPasswordChangedDate;
+				usr.PasswordQuestion = user.PasswordQuestion;
+				usr.Email = user.Email;
+				usr.Comment = user.Comment;
+				usr.IsApproved = user.IsApproved;
 
-					DataContext.SaveChanges();
-				}
-				catch(Exception)
-				{
-					throw;
-				}
+				DataContext.SaveChanges();
 			}
 			DataContext.Dispose();
 		}
@@ -278,17 +271,15 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
-			dynamic user = null;
+			dynamic user;
 
 			if ((AllowLoginWithEmail || UseEmailAsUsername) && RequiresUniqueEmail)
 			{
-				if (Regex.IsMatch(username, EmailRegularExpression))
-				{
-					user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
-				}
-				else { user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault(); }
+				user = Regex.IsMatch(username, EmailRegularExpression) 
+					? Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault() 
+					: Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 			}
 			else
 			{
@@ -321,7 +312,7 @@ namespace Holyprin.Web.Security
 			
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			string newPassword = null;
 
@@ -361,7 +352,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			bool result = false;
 
@@ -408,7 +399,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			bool result = false;
 
@@ -467,7 +458,6 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			DateTime cutoff = DateTime.Now.AddMinutes(-Membership.UserIsOnlineTimeWindow);
 
@@ -484,7 +474,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			MembershipUser memUser = null;
 
@@ -497,8 +487,8 @@ namespace Holyprin.Web.Security
 					user.Username,
 					user.UserId,
 					user.Email,
-					user.PasswordQuestion == null ? "" : user.PasswordQuestion,
-					user.Comment == null ? "" : user.Comment,
+					user.PasswordQuestion ?? "",
+					user.Comment ?? "",
 					user.IsApproved,
 					false,
 					user.DateCreated,
@@ -521,36 +511,33 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			MembershipUser memUser = null;
 
-			if (providerUserKey != null)
-			{
-				dynamic usr = Users.Find(providerUserKey);
+			dynamic usr = Users.Find(providerUserKey);
 
-				if (usr != null)
-				{
-					memUser = new MembershipUser(
-						Name,
-						usr.Username,
-						usr.UserId,
-						usr.Email,
-						usr.PasswordQuestion == null ? "" : usr.PasswordQuestion,
-						usr.Comment == null ? "" : usr.Comment,
-						usr.IsApproved,
-						false,
-						usr.DateCreated,
-						usr.DateLastLogin == null ? DateTime.MinValue : (DateTime)usr.DateLastLogin,
-						usr.DateLastActivity == null ? DateTime.MinValue : (userIsOnline) ? DateTime.Now : (DateTime)usr.DateLastActivity,
-						usr.DateLastPasswordChange,
-						DateTime.MinValue
-					);
-				}
+			if (usr != null)
+			{
+				memUser = new MembershipUser(
+					Name,
+					usr.Username,
+					usr.UserId,
+					usr.Email,
+					usr.PasswordQuestion ?? "",
+					usr.Comment ?? "",
+					usr.IsApproved,
+					false,
+					usr.DateCreated,
+					usr.DateLastLogin == null ? DateTime.MinValue : (DateTime)usr.DateLastLogin,
+					usr.DateLastActivity == null ? DateTime.MinValue : (userIsOnline) ? DateTime.Now : (DateTime)usr.DateLastActivity,
+					usr.DateLastPasswordChange,
+					DateTime.MinValue
+				);
 			}
-			
+
 			DataContext.Dispose();
-			
+
 			return memUser;
 		}
 
@@ -564,7 +551,7 @@ namespace Holyprin.Web.Security
 
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Email = @email"), new System.Data.SqlClient.SqlParameter("@email", email)).Cast<dynamic>().FirstOrDefault();
 
@@ -605,15 +592,15 @@ namespace Holyprin.Web.Security
 		{
 			//Thread Safety
 			DbContext DataContext = (DbContext)Activator.CreateInstance(CFMembershipSettings.DataContext);
-			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
+			DbSet Users = DataContext.Set(CFMembershipSettings.UserType);
 
 			pageIndex = (pageIndex == 1) ? 0 : pageIndex;
 
-			string baseQuery = "SELECT * FROM $Users";
+			const string baseQuery = "SELECT * FROM $Users";
 
 			MembershipUserCollection muc = new MembershipUserCollection();
 
-			dynamic foundUsers = null;
+			dynamic foundUsers;
 
 			List<dynamic> list = new List<dynamic>();
 
@@ -635,24 +622,21 @@ namespace Holyprin.Web.Security
 
 			list = list.OrderBy(x => x.Username).Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-			list.ForEach(usr =>
-			{
-				muc.Add(new MembershipUser(
-					Name,
-					usr.Username,
-					usr.UserId,
-					usr.Email,
-					usr.PasswordQuestion,
-					usr.Comment == null ? "" : usr.Comment,
-					usr.IsApproved,
-					false,
-					usr.DateCreated,
-					usr.DateLastLogin == null ? DateTime.MinValue : (DateTime)usr.DateLastLogin,
-					usr.DateLastActivity == null ? DateTime.MinValue : (DateTime)usr.DateLastActivity,
-					usr.DateLastPasswordChange,
-					DateTime.MinValue
-				));
-			});
+			list.ForEach(usr => muc.Add(new MembershipUser(
+			                            	Name,
+			                            	usr.Username,
+			                            	usr.UserId,
+			                            	usr.Email,
+			                            	usr.PasswordQuestion,
+			                            	usr.Comment ?? "",
+			                            	usr.IsApproved,
+			                            	false,
+			                            	usr.DateCreated,
+			                            	usr.DateLastLogin == null ? DateTime.MinValue : (DateTime)usr.DateLastLogin,
+			                            	usr.DateLastActivity == null ? DateTime.MinValue : (DateTime)usr.DateLastActivity,
+			                            	usr.DateLastPasswordChange,
+			                            	DateTime.MinValue
+			                            	)));
 
 			DataContext.Dispose();
 

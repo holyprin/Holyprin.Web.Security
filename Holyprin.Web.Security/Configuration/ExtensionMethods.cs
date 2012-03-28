@@ -3,12 +3,9 @@
 // Licensed under terms of GNU General Public License version 2 (GPLv2)
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Collections.Specialized;
 using System.Web.Security;
-using System.Data.Entity;
 
 namespace Holyprin.Web.Security
 {
@@ -43,10 +40,7 @@ namespace Holyprin.Web.Security
 				config.Remove(name);
 				return r;
 			}
-			else
-			{
-				return defaultValue;
-			}
+			return defaultValue;
 		}
 
 		public static int GetConfigValue(this NameValueCollection config, string name, int defaultValue)
@@ -65,11 +59,7 @@ namespace Holyprin.Web.Security
 				config.Remove(name);
 				return r;
 			}
-			else
-			{
-				return defaultValue;
-			}
-
+			return defaultValue;
 		}
 
 		public static bool GetConfigValue(this NameValueCollection config, string name, bool defaultValue)
@@ -88,11 +78,7 @@ namespace Holyprin.Web.Security
 				config.Remove(name);
 				return r;
 			}
-			else
-			{
-				return defaultValue;
-			}
-
+			return defaultValue;
 		}
 	}
 }
