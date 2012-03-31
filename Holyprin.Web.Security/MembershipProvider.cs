@@ -356,7 +356,7 @@ namespace Holyprin.Web.Security
 
 			bool result = false;
 
-			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username", new System.Data.SqlClient.SqlParameter("@username", username))).Cast<dynamic>().FirstOrDefault();
+			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null)
 			{
