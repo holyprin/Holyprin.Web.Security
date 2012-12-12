@@ -1,15 +1,15 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security", "Holyprin.Web.Security\Holyprin.Web.Security.csproj", "{C60716BB-F7C1-409A-9F5C-4F9598E6536B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security.MVC3", "Holyprin.Web.Security.MVC3\Holyprin.Web.Security.MVC3.csproj", "{FF751A7A-33D2-423C-A413-26049E891A65}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{43B1BFA4-9D17-4DBC-BFEB-9EEFC820D946}"
 	ProjectSection(SolutionItems) = preProject
 		Holyprin.Web.Security.vsmdi = Holyprin.Web.Security.vsmdi
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security", "Holyprin.Web.Security\Holyprin.Web.Security.csproj", "{C60716BB-F7C1-409A-9F5C-4F9598E6536B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Holyprin.Web.Security.MVC3", "Holyprin.Web.Security.MVC3\Holyprin.Web.Security.MVC3.csproj", "{FF751A7A-33D2-423C-A413-26049E891A65}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

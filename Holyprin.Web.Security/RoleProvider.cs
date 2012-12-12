@@ -40,7 +40,8 @@ namespace Holyprin.Web.Security
 					foreach (string userStr in usernames)
 					{
 						dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE UserName = @user"), new System.Data.SqlClient.SqlParameter("@user", userStr)).Cast<dynamic>().FirstOrDefault();
-
+						if (Configuration.CFMembershipSettings.AllowLoginWithEmail == true)
+							user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username OR Email = @email"), new System.Data.SqlClient.SqlParameter("@username", userStr), new System.Data.SqlClient.SqlParameter("@email", userStr)).Cast<dynamic>().FirstOrDefault();
 						if (user != null)
 							if (!role.Users.Contains(user))
 								role.Users.Add(user);
@@ -159,6 +160,8 @@ namespace Holyprin.Web.Security
 			List<string> roles = new List<string>();
 
 			var user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
+			if (Configuration.CFMembershipSettings.AllowLoginWithEmail == true)
+				user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username OR Email = @email"), new System.Data.SqlClient.SqlParameter("@username", username), new System.Data.SqlClient.SqlParameter("@email", username)).Cast<dynamic>().FirstOrDefault();
 			if (user != null)
 			{
 				foreach(dynamic role in user.Roles) {
@@ -200,6 +203,8 @@ namespace Holyprin.Web.Security
 			DbSet Users = DataContext.Set(CFMembershipSettings.UserType), Roles = DataContext.Set(CFMembershipSettings.RoleType);
 
 			dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"), new System.Data.SqlClient.SqlParameter("@username", username)).Cast<dynamic>().FirstOrDefault();
+			if (Configuration.CFMembershipSettings.AllowLoginWithEmail == true)
+				user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username OR Email = @email"), new System.Data.SqlClient.SqlParameter("@username", username), new System.Data.SqlClient.SqlParameter("@email", username)).Cast<dynamic>().FirstOrDefault();
 			dynamic role = Roles.SqlQuery(q("SELECT * FROM $Roles WHERE Name = @role"), new System.Data.SqlClient.SqlParameter("@role", roleName)).Cast<dynamic>().FirstOrDefault();
 
 			if (user != null && role != null)
@@ -224,6 +229,8 @@ namespace Holyprin.Web.Security
 					foreach (string userStr in usernames)
 					{
 						dynamic user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username"),new System.Data.SqlClient.SqlParameter("@username", userStr)).Cast<dynamic>().FirstOrDefault();
+						if (Configuration.CFMembershipSettings.AllowLoginWithEmail == true)
+							user = Users.SqlQuery(q("SELECT * FROM $Users WHERE Username = @username OR Email = @email"), new System.Data.SqlClient.SqlParameter("@username", userStr), new System.Data.SqlClient.SqlParameter("@email", userStr)).Cast<dynamic>().FirstOrDefault();
 						if (user != null)
 							if (role.Users.Contains(user))
 								role.Users.Remove(user);
